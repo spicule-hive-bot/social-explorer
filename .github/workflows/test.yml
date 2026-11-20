@@ -159,6 +159,9 @@ jobs:
     if: always()
     runs-on: ubuntu-24.04
     timeout-minutes: 5
+    # test.yml sets no workflow-level permissions, so the repository default (read-write) would apply.
+    permissions:
+      contents: read
     steps:
       - name: All required jobs passed
         env:
