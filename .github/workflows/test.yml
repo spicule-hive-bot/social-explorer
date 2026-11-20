@@ -144,3 +144,35 @@ jobs:
           name: test-results
           path: ex-accell-ui/test-results/
           if-no-files-found: ignore
+
+  # Single stable check name for the merge convention, the review rubric and the hive's auto-red
+  # watcher. The `protect main` ruleset is meant to require this check by name. It rolls up the jobs
+  # of THIS workflow only; Jupyter, Docs, Demo script, Secret scan and Dependency audit are separate,
+  # path-filtered workflows and are not part of it. Add a job to `needs` when it joins the gate.
+  #
+  # `if: always()` so the rollup still reports when a needed job fails or is cancelled, and every
+  # needed job must have succeeded: a skipped needed job (for example `unit-tests` when `build`
+  # failed) is a failure, not a pass.
+  ci:
+    name: ci
+    needs: [build, unit-tests, playwright-e2e]
+    if: always()
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      - name: All required jobs passed
+        env:
+          BUILD_RESULT: ${{ needs.build.result }}
+          UNIT_TESTS_RESULT: ${{ needs.unit-tests.result }}
+          E2E_RESULT: ${{ needs.playwright-e2e.result }}
+        run: |
+          fail=0
+          for entry in "build=$BUILD_RESULT" "unit-tests=$UNIT_TESTS_RESULT" "playwright-e2e=$E2E_RESULT"; do
+            if [ "${entry#*=}" = "success" ]; then
+              echo "ok: $entry"
+            else
+              echo "::error::${entry%%=*} finished as ${entry#*=}"
+              fail=1
+            fi
+          done
+          exit "$fail"
