@@ -108,8 +108,8 @@ Coding agents (Claude Code, GitHub Copilot, Cursor and the hive's own agents) fo
 to read them, but the rules apply to agent-authored pull requests the same way they apply to yours.
 
 - **The required check is `ci`.** It is the aggregate job at the end of
-  `.github/workflows/test.yml` and passes only when `build`, `unit-tests` and `playwright-e2e`
-  all succeed. The other workflows (Jupyter, Docs, Demo script, Secret scan, Dependency audit) are
+  `.github/workflows/test.yml` and passes only when every job it `needs:` (the web build with lint,
+  the unit tests with coverage, the Playwright suite) succeeded. The other workflows (Jupyter, Docs, Demo script, Secret scan, Dependency audit) are
   separate and path-filtered; read them when your change touches what they watch.
 - **Branches** are `type/short-description` off `main`, and every change lands through a pull
   request. Never push to `main`.

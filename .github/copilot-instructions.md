@@ -22,6 +22,9 @@ Full map and rules: `AGENTS.md` at the repo root. The web app's own guide is
   labelled `human-queue`, `hold`, `do-not-merge`, `needs-human`, `blocked`, `wontfix` or
   `duplicate`.
 
+Skills are in `.agents/skills/` (`social-explorer-check`); load only the one that matches the task.
+The AI policy is `docs/security/SECURITY-AI.md`.
+
 ## Conventions to match
 
 - **Auth**: every `/api/*` route requires a session unless `src/lib/server/auth/guard.ts` lists it

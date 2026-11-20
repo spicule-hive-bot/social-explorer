@@ -158,23 +158,32 @@ These labels exist on the repository; the hive reads them.
 - Skipped by agents: `hold`, `do-not-merge`, `needs-human`, `human-queue`, `blocked`, `wontfix`,
   `duplicate`.
 - `needs-rework` sends a pull request back to the quality agent. With no comment saying what to
-  change, it means: make `ci` green and resolve the open review comments. Never stop to ask what
-  to change when `ci` is red.
+  change, it means: make `ci` green and resolve the open review comments. When a watched workflow
+  is red, `ci-feedback.yml` comments on the PR ("CI failed on `<sha>`") with each failing job and
+  its first error lines: read that comment first, because an agent token may not be allowed to
+  read check runs or logs. Never stop to ask what to change when `ci` is red.
+- `ai-fix-requested`: a maintainer's request for `ai-fix.yml` to attempt the issue (see
+  `docs/ai-workflows.md`). Bots are not admitted by default.
+- `issue-gate.yml` removes `issue-approved` from an issue that states no acceptance criteria.
 
 ## Before you open a PR
 
 Run the checks for the part you touched (commands above), then open a PR against `main`.
 
 The check that should be green is **`ci`**: the aggregate job in `.github/workflows/test.yml`. It
-needs `build` (lint, type check, build), `unit-tests` (Vitest with coverage) and `playwright-e2e`.
-It does **not** cover the separate, path-filtered workflows: `jupyter.yml` (Jupyter helpers and
+rolls up every other job of that workflow (read its `needs:`): the web build with lint and type
+check, the Vitest unit tests with coverage, the Playwright suite and, once the CI-tooling change
+has landed, the Node tests under `scripts/`. It does **not** cover the separate, path-filtered
+workflows: `jupyter.yml` (Jupyter helpers and
 image), `docs.yml`, `demo-script.yml`, `secret-scan.yml` and `audit.yml` (npm audit, high and
 above, on dependency changes and weekly). Read the failing *step* of `gh pr checks <n>`, not the
 colour of the badge. Never use `gh workflow run` to produce a check for a PR.
 
 Commit messages are `type: description` (feat, fix, refactor, docs, test, chore, perf, ci).
 
-## Other workflows already here
+## Workflows
+
+Already here before the onboarding, unchanged:
 
 - `claude.yml`: responds to `@claude` in issue and PR comments, reviews, and new issues, only for
   authors with OWNER, MEMBER or COLLABORATOR association. Uses the `ANTHROPIC_API_KEY` secret.
@@ -183,6 +192,54 @@ Commit messages are `type: description` (feat, fix, refactor, docs, test, chore,
   SSH deploy. Agents never run it.
 - `docs.yml`, `wiki.yml`: build the VitePress site and sync the wiki; publishing is gated by the
   repository variables `DOCS_DEPLOY` and `WIKI_SYNC`.
+
+Added by the onboarding pull requests (all advisory, none part of `ci`):
+
+- `tier-classifier.yml` and `labeler.yml`: label each PR with a risk tier (`docs/risk-tiers.md`)
+  and path labels.
+- `coverage-gate.yml`, `quality-report.yml`, `nightly-compliance.yml`, `auto-qa.yml`,
+  `pr-metrics.yml`: coverage ratchet, weekly quality page, nightly check of `main`, bounded
+  retune of advisory thresholds, PR metrics (`docs/quality.md`).
+- `issue-gate.yml`, `main-guard.yml`, `ci-feedback.yml`: acceptance-criteria check on
+  `issue-approved`, detector for commits that skip a pull request, and the failure comment.
+- `ai-fix.yml` (label-gated, live) and `auto-review.yml` (disabled): `docs/ai-workflows.md`.
+- `acceptance.yml`, `thin-caller-gate.yml`, `acceptance-pin-health.yml`: shared acceptance specs in
+  report mode (`acceptance/README.md`). Every `uses: spiculedata/acceptance-spec/...` carries the
+  same full SHA and changes together. The labels `acceptance-waived` and `spec-already-green` are
+  applied by humans only, never by an agent.
+
+## Safety layers and where the agent's knowledge lives
+
+`.claude/settings.json` enforces the core of the hard stops in three layers, evaluated deny, then
+ask, then allow: reading secrets, force-pushes and history rewrites are denied; merging, workflow
+runs, secrets and variables, containers and SSH, and editing workflows, the settings, `AGENTS.md`,
+the policy, deployment files, migrations, authentication and data sharing ask a human; the real
+check commands and read-only `git`/`gh` are allowed. The AI policy, including what can leave the
+machine and the known gaps, is [`docs/security/SECURITY-AI.md`](docs/security/SECURITY-AI.md).
+
+- `corrections.jsonl`: append-only corrections (`.claude/memory/README.md` has the schema).
+- `.claude/memory/decisions.md`: why things are shaped this way.
+- `.claude/session-summary.md`: where the work stands now (goes stale by design).
+- `.agents/skills/`: project skills; `.claude/skills` is a symlink to it so Claude Code, `pi` and
+  GitHub Copilot all find them. Load only the one that matches the task.
+
+| When | Skill |
+| --- | --- |
+| Before opening or updating a PR, or reporting that a change is checked | `social-explorer-check` |
+
+## Merging, the ruleset, and bot PRs
+
+- There is no ruleset on `main` yet (invariant 10). The intended one requires a pull request and a
+  green `ci`. Until it exists `ci` is a rule, and `main-guard.yml` is the only thing that notices a
+  direct push. Never push to `main`, and never use `--admin` to merge.
+- Bot PRs: `auto-qa.yml` (the weekly retune PR) mints a Hive GitHub App token from
+  `vars.BOT_APP_ID` and `secrets.BOT_APP_PRIVATE_KEY` when they exist, so the PR is App-authored
+  and its `pull_request` workflows run immediately. Without them it falls back to `GITHUB_TOKEN`,
+  and GitHub holds that PR's runs as `action_required` until a maintainer approves them in the
+  Actions tab. No workflow approves held runs. Workflows that push LLM-written code
+  (`ai-fix.yml`) deliberately stay on `GITHUB_TOKEN`: a human starts CI on those.
+- Never use `gh workflow run` to produce a check for a pull request: a dispatched run does not
+  satisfy a ruleset for that PR.
 
 Copies of these instructions for other tools: `CLAUDE.md` (Claude Code),
 `.github/copilot-instructions.md` (GitHub Copilot), `.cursor/rules/social-explorer.mdc` (Cursor).
