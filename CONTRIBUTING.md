@@ -99,3 +99,22 @@ derive from third-party work; keep their copyright headers and modification noti
 ## Reporting security issues
 
 Please do **not** open a public issue. See [SECURITY.md](SECURITY.md).
+
+## Working with coding agents
+
+Coding agents (Claude Code, GitHub Copilot, Cursor and the hive's own agents) follow
+[`AGENTS.md`](AGENTS.md); `CLAUDE.md`, `.github/copilot-instructions.md` and
+`.cursor/rules/social-explorer.mdc` are copies of it for each tool. Human contributors do not need
+to read them, but the rules apply to agent-authored pull requests the same way they apply to yours.
+
+- **The required check is `ci`.** It is the aggregate job at the end of
+  `.github/workflows/test.yml` and passes only when every job it `needs:` (the web build with lint,
+  the unit tests with coverage, the Playwright suite) succeeded. The other workflows (Jupyter, Docs, Demo script, Secret scan, Dependency audit) are
+  separate and path-filtered; read them when your change touches what they watch.
+- **Branches** are `type/short-description` off `main`, and every change lands through a pull
+  request. Never push to `main`.
+- **Issues for agents** need acceptance criteria (an "Acceptance criteria" section or a checklist
+  saying how done is verified) before a maintainer adds `issue-approved`. Issues that need human
+  judgement are labelled `human-queue` and agents leave them alone.
+- **Agents must not** touch deployment (`deploy.yml`, the Scaleway and SSH secrets), publish data
+  over IPFS, or change authentication without a human decision; see "Hard stops" in `AGENTS.md`.

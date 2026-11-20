@@ -1,0 +1,41 @@
+---
+description: Social Explorer project rules for Cursor. The full rules are in AGENTS.md; this file only restates the ones an editor assistant most often breaks.
+alwaysApply: true
+---
+
+# Social Explorer
+
+A social media research platform: SvelteKit 2 / Svelte 5 web app and API (`ex-accell-ui/`), Python
+ETL (`etl/`), a radio ingestion service (`wavepulse/`), a Jupyter image (`jupyter/`) and a
+VitePress docs site (`docs-site/`), around PostgreSQL with `pg_duckdb`.
+
+**Read `AGENTS.md` first.** It is the source of truth. If this file and `AGENTS.md` disagree,
+`AGENTS.md` wins and this file is the bug.
+
+## Rules that are easy to break
+
+- **Collected content stays out.** No real post, handle, transcript or user data in a prompt, log,
+  test, fixture, issue or PR. Tests use the synthetic demo generator.
+- **Secrets stay out.** No `.env*` (except `.env.example`), keys or tokens in a commit or a prompt.
+  Never reference `DEPLOY_SSH_KEY`, `SCW_*` or `ANTHROPIC_API_KEY` from new code.
+- **Auth first.** Every `/api/*` route needs a session unless `guard.ts` lists it as public; code
+  execution and user management are admin-only. SQL is parameterised; no shell from user input.
+- **Do not touch deployment.** `deploy.yml` publishes to production and is for humans only.
+- **Schema changes are new migrations** in `ex-accell-ui/db/migrations/`, never edits to an
+  applied one.
+- **Coverage only goes up.** Do not lower `coverage.thresholds` in `vitest.config.ts`.
+
+## Deliverables, hard stops and labels
+
+Every task ends in a pull request, a written finding or a `no_work_needed` verdict with evidence;
+if blocked or out of scope, write an evidenced finding instead of stopping silent. Never merge or
+push to `main`, or remove `hold`, `do-not-merge`, `needs-human` or `human-queue`. Stop and write a
+finding before auth, secrets or supply-chain changes, new dependencies or outbound destinations.
+Only `issue-approved` issues (with acceptance criteria) are agent work; never `human-queue`. Skills live in
+`.agents/skills/` (`social-explorer-check`); `.claude/skills` links to it.
+
+## Branches and checks
+
+Never push to `main`. Branch, open a pull request, and wait for the `ci` check (the aggregate job
+in `.github/workflows/test.yml`). Report what the commands in `AGENTS.md` printed before you call a
+change done.
