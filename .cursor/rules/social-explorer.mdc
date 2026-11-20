@@ -31,7 +31,8 @@ Every task ends in a pull request, a written finding or a `no_work_needed` verdi
 if blocked or out of scope, write an evidenced finding instead of stopping silent. Never merge or
 push to `main`, or remove `hold`, `do-not-merge`, `needs-human` or `human-queue`. Stop and write a
 finding before auth, secrets or supply-chain changes, new dependencies or outbound destinations.
-Only `issue-approved` issues (with acceptance criteria) are agent work; never `human-queue`.
+Only `issue-approved` issues (with acceptance criteria) are agent work; never `human-queue`. Skills live in
+`.agents/skills/` (`social-explorer-check`); `.claude/skills` links to it.
 
 ## Branches and checks
 

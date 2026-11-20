@@ -34,3 +34,6 @@ Social Explorer is a public, pre-1.0 social media research platform: SvelteKit w
 
 `hold`, `do-not-merge`, `needs-human` and `human-queue` mean stop: do not remove them. Only
 `issue-approved` issues (with acceptance criteria) are agent work.
+
+Skills are in `.agents/skills/` (`.claude/skills` links to it): `social-explorer-check` runs the
+repository's real pre-PR gate. The AI policy is `docs/security/SECURITY-AI.md`.
