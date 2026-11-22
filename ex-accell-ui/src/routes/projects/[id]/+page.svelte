@@ -83,6 +83,9 @@
   let availableDatasets: any[] = $state([]);
   let selectedDatasets: number[] = $state([]);
   let loadingDatasets = $state(false);
+  // Set once a load attempt finishes, so an empty or failed result cannot re-trigger the load
+  let datasetsLoaded = false;
+  let datasetsError = $state('');
 
   // ---------- helpers ----------
   function sparklinePath(values: number[], width: number, height: number): string {
@@ -164,12 +167,26 @@
       const result = await response.json();
       if (result.success) {
         availableDatasets = result.datasets || [];
+        datasetsError = '';
+      } else {
+        availableDatasets = [];
+        datasetsError = result.error || 'Could not load the datasets.';
       }
     } catch (e) {
       console.error('Error loading datasets:', e);
+      availableDatasets = [];
+      datasetsError = 'Could not reach the server to load the datasets.';
     } finally {
+      // Marked whether or not the request succeeded: a failed load must not retry in a loop
+      datasetsLoaded = true;
       loadingDatasets = false;
     }
+  }
+
+  function closeCreateWorkspace() {
+    showCreateWorkspace = false;
+    // Let the next open of the form fetch the datasets once more
+    datasetsLoaded = false;
   }
 
   function toggleDatasetSelection(datasetId: number) {
@@ -219,7 +236,7 @@
             linkProblem = `The workspace was created, but ${failures.length} dataset(s) could not be added: ${failures[0]}`;
           }
         }
-        showCreateWorkspace = false;
+        closeCreateWorkspace();
         newWorkspaceName = '';
         newWorkspaceDescription = '';
         newWorkspaceType = 'general';
@@ -235,7 +252,7 @@
   }
 
   $effect(() => {
-    if (showCreateWorkspace && availableDatasets.length === 0) {
+    if (showCreateWorkspace && !datasetsLoaded) {
       untrack(() => loadDatasets());
     }
   });
@@ -456,6 +473,10 @@
                 <div class="text-center py-4">
                   <div class="inline-block animate-spin rounded-full h-5 w-5 border-b-2 border-indigo-600"></div>
                 </div>
+              {:else if datasetsError}
+                <div role="alert" class="bg-amber-50 rounded-md p-3 text-center">
+                  <p class="text-xs text-amber-800">{datasetsError}</p>
+                </div>
               {:else if availableDatasets.length === 0}
                 <div class="bg-slate-50 rounded-md p-3 text-center">
                   <p class="text-xs text-slate-500">No datasets available. Run the ETL pipeline to ingest data.</p>
@@ -487,7 +508,7 @@
             </div>
 
             <div class="mt-3 flex items-center justify-end gap-2">
-              <button type="button" onclick={() => showCreateWorkspace = false}
+              <button type="button" onclick={closeCreateWorkspace}
                 class="px-3 py-1.5 border border-slate-300 text-slate-700 rounded-md text-xs font-medium hover:bg-slate-50">Cancel</button>
               <button type="button" onclick={createWorkspace} disabled={!newWorkspaceName.trim()}
                 class="px-3 py-1.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-md text-xs font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed">Create Workspace</button>
