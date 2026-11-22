@@ -21,6 +21,9 @@
 
   let currentFilterParams: Record<string, string> = {};
 
+  // A date change only fills currentFilterParams, which scopes the posts the drilldown opens. The
+  // topic list is precomputed (the topics table has no per-post date), so it cannot be reloaded
+  // "for the new range" — the page below says that under the filter bar.
   function handleFilterChange(detail: FilterChange) {
     currentFilterParams = {};
     if (detail.workspaceId) currentFilterParams.workspace_id = detail.workspaceId;
@@ -105,6 +108,11 @@
 
   // Debounce timer for API-driven filters
   let filterDebounceTimer: ReturnType<typeof setTimeout> | null = null;
+
+  // The filter key of the topics on screen. Reading topicsData in the effect below would re-run
+  // it whenever the fetch's own response is assigned, so each key — workspace plus category plus
+  // search — is requested once and the response's reassignment is a no-op (issue #346).
+  let loadedFilterKey: string | null = null;
 
 
   // Load filtered topics from database (only for category/search — minSize is client-side)
@@ -464,7 +472,14 @@
   const workspaceId = $derived(page.url.searchParams.get('workspace'));
   // Reactive: re-fetch from API only when category or search change (debounced)
   $effect(() => {
-    if ((selectedCategory !== 'all' || searchQuery !== '') && !loading && topicsData.length > 0) {
+    const key = `${workspaceId ?? ''}|${selectedCategory}|${searchQuery}`;
+    if (
+      (selectedCategory !== 'all' || searchQuery !== '') &&
+      !loading &&
+      topicsData.length > 0 &&
+      key !== loadedFilterKey
+    ) {
+      loadedFilterKey = key;
       if (filterDebounceTimer) clearTimeout(filterDebounceTimer);
       filterDebounceTimer = setTimeout(loadFilteredTopics, 300);
     }
@@ -554,6 +569,10 @@
     <!-- Data Source Filter -->
     <div class="mb-6">
       <FilterBar workspaceId={workspaceId} datasetTypes={["social_media"]} onchange={handleFilterChange} />
+      <p class="mt-2 text-sm text-gray-500">
+        The date range scopes the posts you open from a topic; the topic list itself is precomputed and
+        reloads only when the search or category changes.
+      </p>
     </div>
     {#if loading}
       <div class="flex items-center justify-center py-16">
