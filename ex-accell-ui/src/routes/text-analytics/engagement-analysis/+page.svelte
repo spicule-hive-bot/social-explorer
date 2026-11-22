@@ -78,20 +78,42 @@
     }
   }
   
+  // The filter combination the filtered data was last loaded with. The first load covers the initial filters, so
+  // the reload effect below compares keys to keep its own completion (the `loading` flip) from issuing the same
+  // requests a second time.
+  let loadedFilterKey: string | null = null;
+  // Counts filtered-data requests; a response landing after a newer request started is stale and is dropped.
+  let filteredRequests = 0;
+
+  function filterKey(): string {
+    // Every filter is read here, so the reload effect tracks all of them (the old truthiness check stopped reading
+    // at `selectedPlatform` and never reloaded for the other two).
+    return JSON.stringify([selectedPlatform, selectedContentType, minEngagementRate]);
+  }
+
   // Load filtered data from database
   async function loadFilteredData() {
+    const filters = {
+      platform: selectedPlatform,
+      contentType: selectedContentType,
+      minEngagementRate: minEngagementRate,
+      timeRange: timeRange
+    };
+    loadedFilterKey = filterKey();
+    const requestId = ++filteredRequests;
     try {
-      const filters = {
-        platform: selectedPlatform,
-        contentType: selectedContentType,
-        minEngagementRate: minEngagementRate,
-        timeRange: timeRange
-      };
-      
-      platformEngagement = await engagementAnalysisDb.getPlatformEngagement(filters, workspaceId || undefined);
-      contentTypes = await engagementAnalysisDb.getContentTypePerformance(filters, workspaceId || undefined);
-      engagementTrends = await engagementAnalysisDb.getEngagementTrends(filters.timeRange, workspaceId || undefined);
-      topPosts = await engagementAnalysisDb.getTopPerformingPosts(filters, 10, workspaceId || undefined);
+      const [platformRows, contentTypeRows, trendRows, postRows] = await Promise.all([
+        engagementAnalysisDb.getPlatformEngagement(filters, workspaceId || undefined),
+        engagementAnalysisDb.getContentTypePerformance(filters, workspaceId || undefined),
+        engagementAnalysisDb.getEngagementTrends(filters.timeRange, workspaceId || undefined),
+        engagementAnalysisDb.getTopPerformingPosts(filters, 10, workspaceId || undefined)
+      ]);
+      // A newer request has started since; applying this response would overwrite fresh results with stale ones.
+      if (requestId !== filteredRequests) return;
+      platformEngagement = platformRows;
+      contentTypes = contentTypeRows;
+      engagementTrends = trendRows;
+      topPosts = postRows;
     } catch (error) {
       console.error('Error loading filtered data:', error);
       errorMessage = 'Failed to load filtered engagement data. Please try again.';
@@ -412,11 +434,11 @@
       });
     }
   });
-  // Watch for filter changes and reload data
+  // Watch for filter changes and reload data. `filterKey()` reads every filter, and comparing it with
+  // `loadedFilterKey` means the first load's own completion does not re-issue its requests.
   $effect(() => {
-    if (!loading && (selectedPlatform || selectedContentType || minEngagementRate)) {
-      untrack(() => loadFilteredData());
-    }
+    if (loading || filterKey() === loadedFilterKey) return;
+    untrack(() => loadFilteredData());
   });
 </script>
 
