@@ -17,7 +17,7 @@ Social Explorer is a monorepo of cooperating services around one PostgreSQL data
 
 | Directory | Role |
 |-----------|------|
-| `ex-accell-ui/` | SvelteKit 2 / Svelte 5 web app and its API routes (TypeScript, Tailwind CSS 4) |
+| `ex-accell-ui/` | SvelteKit 3 / Svelte 5 web app and its API routes (TypeScript, Tailwind CSS 4) |
 | PostgreSQL + `pg_duckdb` | Single analytics database. Queries run through DuckDB's engine on PostgreSQL tables |
 | `etl/` | Python pipelines that load datasets such as GDELT into the database |
 | `crawler/` | Go service that crawls Telegram, YouTube and Bluesky, scheduled through Dapr jobs (source lives in a separate repository for now) |

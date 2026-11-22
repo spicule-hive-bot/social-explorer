@@ -130,7 +130,7 @@ ex-accell-ui/
 
 ### Technology Stack
 
-- **Frontend**: SvelteKit 2.x, Svelte 5, TypeScript, Tailwind CSS
+- **Frontend**: SvelteKit 3.x, Svelte 5, TypeScript, Tailwind CSS
 - **Backend**: Node.js, DuckDB, PostgreSQL
 - **Services**: Dapr (state, pub/sub, jobs), Redis
 - **Crawlers**: Go-based Telegram/YouTube scraper

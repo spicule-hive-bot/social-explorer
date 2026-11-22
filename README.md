@@ -46,7 +46,7 @@ flowchart LR
 
 | Directory | Role |
 |-----------|------|
-| [`ex-accell-ui/`](ex-accell-ui) | SvelteKit 2 / Svelte 5 web app and API (TypeScript, Tailwind CSS 4) |
+| [`ex-accell-ui/`](ex-accell-ui) | SvelteKit 3 / Svelte 5 web app and API (TypeScript, Tailwind CSS 4) |
 | [`etl/`](etl) | Python data pipelines |
 | [`crawler/`](crawler) | Go crawler for Telegram, YouTube and Bluesky |
 | [`wavepulse/`](wavepulse) | Radio recording and transcription, derived from [NYU WavePulse](https://github.com/NYU-DICE-Lab/WavePulse) |

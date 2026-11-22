@@ -16,7 +16,7 @@ fixture, an issue or a pull request. Tests use synthetic data (see the demo data
 ## Repository shape
 
 ```
-ex-accell-ui/  Web app and API: SvelteKit 2, Svelte 5, TypeScript, Tailwind CSS 4, Vitest, Playwright. Has its own CLAUDE.md
+ex-accell-ui/  Web app and API: SvelteKit 3, Svelte 5, TypeScript, Tailwind CSS 4, Vitest, Playwright. Has its own CLAUDE.md
 etl/           Python ETL pipelines into PostgreSQL (Bronze/Silver/Gold). Has its own CLAUDE.md (parts are stale, see below)
 wavepulse/     Radio recording and transcription service (Python), derived from NYU-DICE-Lab/WavePulse (see its NOTICE)
 jupyter/       Jupyter Lab image, helper modules and pytest suite
