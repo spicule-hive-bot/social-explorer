@@ -1,8 +1,7 @@
 <script lang="ts">
   import { onDestroy } from 'svelte';
-  import { browser } from '$app/env';
   import { matchesEventFilters, type GdeltEvent, type GdeltEventFilters } from '$lib/utils/gdeltFilters';
-  import { buildEventPopupHtml, hasCoordinates, markerOptions } from '$lib/utils/gdeltMarkers';
+  import { buildEventPopupHtml, hasCoordinates, markerOptions, POPUP_ACTIONS } from '$lib/utils/gdeltMarkers';
 
   /** How many events pass the filters, and how many were loaded */
   export let visibleCount: number;
@@ -25,15 +24,29 @@
   let mapContainer: HTMLDivElement;
   let map: any;
   let markers: Record<string, any> = {};
+  /** The one delegated listener for the popup buttons; kept so destroyMap can remove exactly what initializeMap added. */
+  let popupClickListener: ((event: MouseEvent) => void) | null = null;
 
-  // Global functions for the popup buttons, which are plain HTML inside the map
-  if (browser) {
-    (window as any).filterByCountry = (countryCode: string) => onSelectCountry(countryCode);
-    (window as any).showEventMentions = (eventId: number) => onShowMentions(eventId);
+  /** A click anywhere in the popup that lands on one of its data-action buttons is passed on to the page. */
+  function dispatchPopupClick(event: MouseEvent) {
+    const button = (event.target as Element | null)?.closest?.('[data-action]');
+    if (!(button instanceof HTMLElement)) return;
+    const action = button.getAttribute('data-action');
+    if (action === POPUP_ACTIONS.filterCountry) {
+      onSelectCountry(button.getAttribute('data-country') ?? '');
+    } else if (action === POPUP_ACTIONS.showMentions) {
+      const eventId = Number(button.getAttribute('data-event-id'));
+      if (!Number.isNaN(eventId)) onShowMentions(eventId);
+    }
   }
 
   /** Removes every marker and the map itself, ready for initializeMap to build a new one. */
   export function destroyMap() {
+    if (popupClickListener && mapContainer) {
+      mapContainer.removeEventListener('click', popupClickListener);
+      popupClickListener = null;
+    }
+
     Object.values(markers).forEach((marker: any) => marker.remove());
     markers = {};
 
@@ -52,6 +65,10 @@
     if (!leaflet || !mapContainer) return;
 
     map = leaflet.map(mapContainer).setView(WORLD_CENTER, WORLD_ZOOM);
+
+    // The popup is plain HTML, so its buttons are handled by one delegated click listener instead of inline handlers
+    popupClickListener = dispatchPopupClick;
+    mapContainer.addEventListener('click', popupClickListener);
 
     // Add tile layer with English labels
     leaflet.tileLayer(TILE_URL, {
@@ -152,7 +169,7 @@
     </div>
   </div>
   <div class="relative">
-    <div bind:this={mapContainer} class="h-[calc(100vh-220px)] min-h-[350px] max-h-[700px] w-full"></div>
+    <div bind:this={mapContainer} data-testid="gdelt-map-container" class="h-[calc(100vh-220px)] min-h-[350px] max-h-[700px] w-full"></div>
     <!-- Loading Overlay -->
     {#if isUpdatingFilter}
       <div class="absolute inset-0 bg-white/75 flex items-center justify-center z-50">

@@ -116,13 +116,49 @@ describe('GdeltMap lifecycle', () => {
     expect(() => component.updateVisibility(events, open)).not.toThrow();
   });
 
-  it('passes popup button clicks on to the page', () => {
+  it('passes popup button clicks on to the page through event delegation', async () => {
     const p = props();
-    render(GdeltMap, p);
-    (window as unknown as Record<string, (arg: unknown) => void>).filterByCountry('FR');
-    (window as unknown as Record<string, (arg: unknown) => void>).showEventMentions(7);
+    const { component } = render(GdeltMap, p);
+    const leaflet = fakeLeaflet();
+    component.initializeMap(leaflet.api, events);
+    const container = document.querySelector('[data-testid="gdelt-map-container"]');
+    expect(container).toBeTruthy();
+
+    const filter = document.createElement('button');
+    filter.setAttribute('data-action', 'filter-country');
+    filter.setAttribute('data-country', 'FR');
+    container!.appendChild(filter);
+    const mentions = document.createElement('button');
+    mentions.setAttribute('data-action', 'show-mentions');
+    mentions.setAttribute('data-event-id', '7');
+    container!.appendChild(mentions);
+
+    await fireEvent.click(filter);
+    await fireEvent.click(mentions);
     expect(p.onSelectCountry).toHaveBeenCalledWith('FR');
     expect(p.onShowMentions).toHaveBeenCalledWith(7);
+  });
+
+  it('registers no window globals for the popup buttons', () => {
+    render(GdeltMap, props());
+    expect((window as unknown as Record<string, unknown>).filterByCountry).toBeUndefined();
+    expect((window as unknown as Record<string, unknown>).showEventMentions).toBeUndefined();
+  });
+
+  it('stops passing popup clicks through once the map is destroyed', async () => {
+    const p = props();
+    const { component } = render(GdeltMap, p);
+    const leaflet = fakeLeaflet();
+    component.initializeMap(leaflet.api, events);
+    const container = document.querySelector('[data-testid="gdelt-map-container"]');
+    const filter = document.createElement('button');
+    filter.setAttribute('data-action', 'filter-country');
+    filter.setAttribute('data-country', 'FR');
+    container!.appendChild(filter);
+
+    component.destroyMap();
+    await fireEvent.click(filter);
+    expect(p.onSelectCountry).not.toHaveBeenCalled();
   });
 });
 
