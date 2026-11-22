@@ -8,7 +8,7 @@
   import { sourceStatusBadgeClass } from '$lib/utils/sourceStatus';
   import { onMount } from 'svelte';
   import { goto } from '$app/navigation';
-  import { page } from '$app/stores';
+  import { page } from '$lib/stores/pageStore.svelte';
 
   export const ssr = false;
 

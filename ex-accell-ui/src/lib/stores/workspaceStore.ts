@@ -14,7 +14,7 @@ export const currentWorkspaceId = derived(currentWorkspace, ($ws) => $ws?.id || 
 /**
  * Set workspace from URL params. Fetches workspace details from API.
  */
-export async function setWorkspaceFromUrl(url: URL): Promise<WorkspaceContext | null> {
+export async function setWorkspaceFromUrl(url: { searchParams: Pick<URLSearchParams, 'get'> }): Promise<WorkspaceContext | null> {
   const wsId = url.searchParams.get('workspace');
   if (!wsId) return null;
 

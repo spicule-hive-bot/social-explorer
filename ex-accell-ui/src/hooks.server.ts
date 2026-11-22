@@ -1,4 +1,4 @@
-import type { Handle } from '@sveltejs/kit';
+import type { Handle } from '@sveltejs/kit/hooks';
 import { decideAccess } from '$lib/server/auth/guard';
 import { SESSION_COOKIE, getAuthConfig } from '$lib/server/auth/runtime';
 import { readSessionToken } from '$lib/server/auth/session';

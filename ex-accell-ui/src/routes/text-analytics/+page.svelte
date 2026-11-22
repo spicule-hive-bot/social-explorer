@@ -1,7 +1,7 @@
 <script lang="ts">
   import PageHeader from '$lib/components/ui/PageHeader.svelte';
   import { goto } from '$app/navigation';
-  import { page } from '$app/stores';
+  import { page } from '$lib/stores/pageStore.svelte';
   import { loadCurrentProject } from '$lib/stores/projectStore';
   import WorkspaceBanner from '$lib/components/ui/WorkspaceBanner.svelte';
   import { onMount } from 'svelte';

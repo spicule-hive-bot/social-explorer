@@ -1,5 +1,4 @@
 <script lang="ts">
-  import { page } from '$app/stores';
   import DataUnavailable from '$lib/components/ui/DataUnavailable.svelte';
   import { onMount } from 'svelte';
   import PageHeader from '$lib/components/ui/PageHeader.svelte';

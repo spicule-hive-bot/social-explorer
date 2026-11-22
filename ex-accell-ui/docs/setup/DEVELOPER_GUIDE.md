@@ -18,7 +18,7 @@
 The Ex-Accell UI is a modern frontend application built with SvelteKit and enhanced with Dapr for microservices capabilities. This guide provides comprehensive information for developers working on this project.
 
 ### Tech Stack
-- **Frontend**: SvelteKit 2.x + Svelte 5.x
+- **Frontend**: SvelteKit 3.x + Svelte 5.x
 - **Language**: TypeScript 5.x
 - **CSS Framework**: Tailwind CSS 3.x
 - **Build Tool**: Vite 7.x

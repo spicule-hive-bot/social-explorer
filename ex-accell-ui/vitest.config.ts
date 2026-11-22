@@ -1,8 +1,9 @@
 import { defineConfig } from 'vitest/config';
 import { sveltekit } from '@sveltejs/kit/vite';
+import { sveltekitOptions } from './sveltekit.options.js';
 
 export default defineConfig({
-  plugins: [sveltekit()],
+  plugins: [sveltekit(sveltekitOptions)],
   // Render Svelte components with the browser build so component tests can mount them
   resolve: process.env.VITEST ? { conditions: ['browser'] } : undefined,
   test: {

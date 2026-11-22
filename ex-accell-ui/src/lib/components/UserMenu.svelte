@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { page } from '$app/stores';
+  import { page } from '$lib/stores/pageStore.svelte';
   import ChangePasswordForm from '$lib/components/ChangePasswordForm.svelte';
   import { signOut, signOutEverywhere } from '$lib/utils/signOut';
 

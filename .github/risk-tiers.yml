@@ -189,7 +189,7 @@ tiers:
         why: Compiler strictness. Loosening it turns type errors into runtime bugs.
       - match: ex-accell-ui/vite.config.ts
         why: Build and dev server configuration.
-      - match: ex-accell-ui/svelte.config.js
+      - match: ex-accell-ui/sveltekit.options.js
         why: SvelteKit adapter and compiler configuration.
       - match: docs-site/.vitepress/**
         why: The VitePress configuration and theme of the documentation site.

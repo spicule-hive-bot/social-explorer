@@ -2,7 +2,7 @@
 
 const WHOLE_NUMBER = /^\d+$/;
 
-export function workspaceIdFromRoute(routeId: string | null, params: Record<string, string>, search: URLSearchParams): string | null {
+export function workspaceIdFromRoute(routeId: string | null, params: Record<string, string>, search: Pick<URLSearchParams, 'get'>): string | null {
   const raw = routeId?.startsWith('/workspaces/') ? params.id : search.get('workspace');
   return raw && WHOLE_NUMBER.test(raw) ? raw : null;
 }

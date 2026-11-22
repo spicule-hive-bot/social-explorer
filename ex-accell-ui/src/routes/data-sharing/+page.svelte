@@ -1,6 +1,6 @@
 <script lang="ts">
   import { onMount } from 'svelte';
-  import { page } from '$app/stores';
+  import { page } from '$lib/stores/pageStore.svelte';
   import PageHeader from '$lib/components/ui/PageHeader.svelte';
   import { ErrorAlert, Modal } from '$lib/components/ui';
   import { formatNumber, formatDate } from '$lib/utils/formatUtils';

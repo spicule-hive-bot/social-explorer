@@ -1,6 +1,6 @@
 <script lang="ts">
   import { CHART } from '$lib/utils/chartColors';
-  import { page } from '$app/stores';
+  import { page } from '$lib/stores/pageStore.svelte';
   import PostDrilldown from '$lib/components/ui/PostDrilldown.svelte';
   import { filtersFromParams, type PostFilters } from '$lib/services/postsApi';
   import FilterBar from '$lib/components/ui/FilterBar.svelte';

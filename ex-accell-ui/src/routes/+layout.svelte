@@ -1,6 +1,6 @@
 <script>
   import '../app.css';
-  import { page } from '$app/stores';
+  import { page } from '$lib/stores/pageStore.svelte';
   import { beforeNavigate } from '$app/navigation';
   import { dismissApiErrors } from '$lib/stores/apiErrors';
   import Navigation from '$lib/components/Navigation.svelte';

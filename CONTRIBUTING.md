@@ -7,7 +7,7 @@ By participating you agree to follow our [Code of Conduct](CODE_OF_CONDUCT.md).
 
 | Path | What it is |
 |------|------------|
-| `ex-accell-ui/` | Main web app (SvelteKit 2, Svelte 5, TypeScript, Tailwind CSS 4) |
+| `ex-accell-ui/` | Main web app (SvelteKit 3, Svelte 5, TypeScript, Tailwind CSS 4) |
 | `etl/` | Python ETL pipelines into PostgreSQL |
 | `jupyter/` | Jupyter research environment |
 | `wavepulse/` | Radio ingestion/transcription service, derived from [NYU-DICE-Lab/WavePulse](https://github.com/NYU-DICE-Lab/WavePulse) (see its `NOTICE`) |

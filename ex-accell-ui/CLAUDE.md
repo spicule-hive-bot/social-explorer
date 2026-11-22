@@ -5,7 +5,7 @@ Social Explorer monorepo. See the root `README.md` and `CONTRIBUTING.md` for the
 
 ## Stack
 
-- SvelteKit 2 / Svelte 5 / TypeScript, built with Vite 7, served with `@sveltejs/adapter-node`
+- SvelteKit 3 / Svelte 5 / TypeScript 6, built with Vite 8, served with `@sveltejs/adapter-node`
 - Tailwind CSS 4 (via `@tailwindcss/vite`/`postcss`; there is no `tailwind.config.*`)
 - PostgreSQL with the `pg_duckdb` extension for all data; Redis and Dapr for state, pub/sub and jobs
 - Tests: Vitest (unit, `src/**/*.test.ts`) and Playwright (e2e, `tests/pages/`)
@@ -40,6 +40,8 @@ set `DATABASE_URL`, `SESSION_SECRET` (32+ chars) and, for the first login, `ADMI
 ## Layout
 
 - `src/routes/` pages and `src/routes/api/**/+server.ts` endpoints
+- `sveltekit.options.js` is the SvelteKit configuration (adapter, CSP, alias). SvelteKit 3 no longer reads
+  `svelte.config.js`; `vite.config.ts` and `vitest.config.ts` pass these options to the `sveltekit()` plugin.
 - `src/hooks.server.ts` authenticates and authorises every request before routes run
 - `src/lib/server/` server-only code: `auth/` (passwords, sessions, access guard, login throttle,
   user repository) and `queryErrors.ts`
@@ -50,6 +52,16 @@ set `DATABASE_URL`, `SESSION_SECRET` (32+ chars) and, for the first login, `ADMI
 - `db/migrations/NNNN_name.sql` schema migrations (DDL only), applied once each by
   `src/lib/server/migrations/` on first sign-in; `db/seed/` holds sample rows; `sql/` is legacy
   reference. `deploy/components/` (repo root) holds Dapr components for compose
+
+## SvelteKit 3 notes
+
+- `$app/stores` no longer exists. In runes components import `page` from `$app/state`. Legacy-syntax (`$:`) components
+  must import `page` from `$lib/stores/pageStore.svelte` and keep using `$page`: state imported from `$app/state` is not
+  tracked inside `$:` statements, so a derived value would never update after navigation. Convert a component to
+  runes before switching it to `$app/state`.
+- `$app/environment` is `$app/env`; `Handle` comes from `@sveltejs/kit/hooks`.
+- `$lib` is kept through the deprecated `alias` option in `sveltekit.options.js` (it logs a warning at build). The
+  replacement is the `#lib` subpath import, which needs explicit file extensions on every import.
 
 ## Data access
 

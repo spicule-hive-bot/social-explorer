@@ -3,7 +3,7 @@
   import { goto } from '$app/navigation';
   import PageHeader from '$lib/components/ui/PageHeader.svelte';
   import { currentProject } from '$lib/stores/projectStore';
-  import { page } from '$app/stores';
+  import { page } from '$lib/stores/pageStore.svelte';
   import { onMount } from 'svelte';
   import { dashboardDb } from '$lib/services/dashboardDb';
   import { ErrorAlert } from '$lib/components/ui';

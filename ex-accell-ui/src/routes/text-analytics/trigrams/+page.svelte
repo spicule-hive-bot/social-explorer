@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { page } from '$app/stores';
+  import { page } from '$lib/stores/pageStore.svelte';
   import PostDrilldown from '$lib/components/ui/PostDrilldown.svelte';
   import type { PostFilters } from '$lib/services/postsApi';
   import { currentProject } from '$lib/stores/projectStore';

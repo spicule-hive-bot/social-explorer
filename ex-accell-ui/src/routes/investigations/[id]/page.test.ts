@@ -7,10 +7,7 @@ const hoisted = vi.hoisted(() => ({
 }));
 
 vi.mock('$app/navigation', () => ({ goto: hoisted.goto, beforeNavigate: hoisted.beforeNavigate }));
-vi.mock('$app/stores', async () => {
-  const { readable } = await import('svelte/store');
-  return { page: readable({ params: { id: '5' } }) };
-});
+vi.mock('$app/state', () => ({ page: { params: { id: '5' } } }));
 
 // The d3 charts draw nothing useful without layout, so stand-ins show what they were given
 vi.mock('$lib/components/investigation/SwimLaneTimeline.svelte', async () => ({

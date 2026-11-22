@@ -3,7 +3,7 @@
   import { isPostNoted, noteFromPost, notesToMarkdown, parseAnnotations, type Annotation } from '$lib/utils/annotations';
   import { createSingleFlight } from '$lib/utils/singleFlight';
   import { beforeNavigate, goto } from '$app/navigation';
-  import { page } from '$app/stores';
+  import { page } from '$lib/stores/pageStore.svelte';
   import { onMount } from 'svelte';
   import { investigationSelection, clearSelection, setTimeRange } from '$lib/stores/investigationStore';
   import WorkbenchToolbar from '$lib/components/investigation/WorkbenchToolbar.svelte';

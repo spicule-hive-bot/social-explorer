@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { page } from '$app/stores';
+  import { page } from '$lib/stores/pageStore.svelte';
   import BrandMark from '$lib/components/ui/BrandMark.svelte';
 
   $: status = $page.status;

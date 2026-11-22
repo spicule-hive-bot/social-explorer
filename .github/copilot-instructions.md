@@ -1,6 +1,6 @@
 # GitHub Copilot: Social Explorer
 
-A social media research platform: a SvelteKit 2 / Svelte 5 web app and API (`ex-accell-ui/`,
+A social media research platform: a SvelteKit 3 / Svelte 5 web app and API (`ex-accell-ui/`,
 TypeScript, Tailwind CSS 4, Vitest, Playwright), Python ETL (`etl/`), a radio ingestion service
 (`wavepulse/`), a Jupyter image (`jupyter/`) and a VitePress docs site (`docs-site/`), around
 PostgreSQL with the `pg_duckdb` extension. Public, Apache-2.0, pre-1.0.

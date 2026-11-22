@@ -18,7 +18,7 @@ function sanitise(start: unknown, end: unknown): DateRange {
   return validateDayRange(dateStart, dateEnd) ? EMPTY : { dateStart, dateEnd };
 }
 
-export function readRange(params: URLSearchParams, store: Storage | null): DateRange {
+export function readRange(params: Pick<URLSearchParams, 'get'>, store: Storage | null): DateRange {
   const fromUrl = sanitise(params.get('date_start'), params.get('date_end'));
   if (fromUrl.dateStart || fromUrl.dateEnd) return fromUrl;
   try {
@@ -29,8 +29,9 @@ export function readRange(params: URLSearchParams, store: Storage | null): DateR
   }
 }
 
-export function applyRangeToParams(params: URLSearchParams, range: DateRange): URLSearchParams {
-  const next = new URLSearchParams(params);
+// Accepts the read-only search params of `page.url` as well as a plain URLSearchParams
+export function applyRangeToParams(params: Iterable<[string, string]>, range: DateRange): URLSearchParams {
+  const next = new URLSearchParams([...params]);
   for (const [key, value] of [['date_start', range.dateStart], ['date_end', range.dateEnd]] as const) {
     if (value) next.set(key, value);
     else next.delete(key);

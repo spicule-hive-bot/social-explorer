@@ -2,7 +2,7 @@
   import { CHART } from '$lib/utils/chartColors';
   import { goto } from '$app/navigation';
   import FilterBar from '$lib/components/ui/FilterBar.svelte';
-  import { page } from '$app/stores';
+  import { page } from '$lib/stores/pageStore.svelte';
   import { currentProject } from '$lib/stores/projectStore';
   import { engagementAnalysisDb } from '$lib/services/engagementAnalysisDb';
   import PageHeader from '$lib/components/ui/PageHeader.svelte';

@@ -9,7 +9,7 @@
   import { onMount, onDestroy } from 'svelte';
   import { typeLabel } from '$lib/utils/projectForm';
   import { goto } from '$app/navigation';
-  import { page } from '$app/stores';
+  import { page } from '$lib/stores/pageStore.svelte';
 
   // ---------- types ----------
   interface Anomaly {
