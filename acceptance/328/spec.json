@@ -1,0 +1,12 @@
+{
+  "issue": 328,
+  "title": "GDELT map popup escapes event fields and wires its buttons through event delegation",
+  "kind": "command",
+  "criteria": [
+    { "id": "C1", "given": "events whose text fields carry <img onerror=...>, quotes, </script> and '", "then": "the popup unit test asserts none of it reaches the popup as markup, and the test is red before the fix" },
+    { "id": "C2", "given": "the popup markup and the map component", "then": "no inline onclick and no window.filterByCountry / window.showEventMentions globals remain anywhere in the app source; the popup buttons are dispatched through one delegated click listener" },
+    { "id": "C3", "given": "the production CSP (script-src 'self', no unsafe-inline)", "then": "the CSP configuration test still passes and the popup source carries no inline handler for the CSP to block" }
+  ],
+  "command": ["node", "check.mjs"],
+  "timeoutSeconds": 600
+}
