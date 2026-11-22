@@ -1,8 +1,8 @@
 // @vitest-environment node
 import { describe, expect, it } from 'vitest';
-import config from '../../../svelte.config.js';
+import { sveltekitOptions } from '../../../sveltekit.options.js';
 
-const csp = config.kit?.csp;
+const csp = sveltekitOptions.csp;
 const directives = (csp?.directives ?? {}) as Record<string, string[] | undefined>;
 
 describe('Content-Security-Policy', () => {
