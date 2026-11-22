@@ -1,7 +1,7 @@
 <script lang="ts">
   import { NEUTRAL_BADGE, categoryBadgeClass } from '$lib/utils/categoryColours';
   import { CHART } from '$lib/utils/chartColors';
-  import { page } from '$app/stores';
+  import { page } from '$lib/stores/pageStore.svelte';
   import PageHeader from '$lib/components/ui/PageHeader.svelte';
   import { getSentimentColor } from '$lib/utils/colorUtils';
   import { onMount } from 'svelte';

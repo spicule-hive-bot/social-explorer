@@ -6,10 +6,7 @@ const project = vi.hoisted(() => ({ current: { id: '1', name: 'Project' } as { i
 const routing = vi.hoisted(() => ({ search: '' }));
 
 vi.mock('$app/navigation', () => nav);
-vi.mock('$app/stores', async () => {
-  const { readable } = await import('svelte/store');
-  return { page: readable({ get url() { return new URL(`http://localhost/data-management${routing.search}`); } }) };
-});
+vi.mock('$app/state', () => ({ page: { get url() { return new URL(`http://localhost/data-management${routing.search}`); } } }));
 vi.mock('$lib/stores/projectStore', async () => {
   const { writable } = await import('svelte/store');
   const currentProject = writable<unknown>(null);

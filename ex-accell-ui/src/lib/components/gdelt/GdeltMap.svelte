@@ -1,6 +1,6 @@
 <script lang="ts">
   import { onDestroy } from 'svelte';
-  import { browser } from '$app/environment';
+  import { browser } from '$app/env';
   import { matchesEventFilters, type GdeltEvent, type GdeltEventFilters } from '$lib/utils/gdeltFilters';
   import { buildEventPopupHtml, hasCoordinates, markerOptions } from '$lib/utils/gdeltMarkers';
 

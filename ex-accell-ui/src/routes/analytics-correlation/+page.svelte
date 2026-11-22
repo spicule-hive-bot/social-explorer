@@ -1,8 +1,8 @@
 <script lang="ts">
   import { CATEGORICAL, CHART } from '$lib/utils/chartColors';
-  import { page } from '$app/stores';
+  import { page } from '$lib/stores/pageStore.svelte';
   import { onMount } from 'svelte';
-  import { browser } from '$app/environment';
+  import { browser } from '$app/env';
   import PageHeader from '$lib/components/ui/PageHeader.svelte';
   import { getSentimentColor } from '$lib/utils/colorUtils';
   import { correlationMatrix } from '$lib/utils/correlation';

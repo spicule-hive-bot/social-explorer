@@ -1,8 +1,8 @@
 <script lang="ts">
   import { dataSourceBadgeClass } from '$lib/utils/categoryColours';
   import { onMount } from 'svelte';
-  import { browser } from '$app/environment';
-  import { page } from '$app/stores';
+  import { browser } from '$app/env';
+  import { page } from '$lib/stores/pageStore.svelte';
   import { createEventDispatcher } from 'svelte';
   import { replaceState } from '$app/navigation';
   import { validateDayRange } from '$lib/utils/calendarDay';
@@ -39,7 +39,7 @@
     rememberRange(range, sessionStorage);
     try {
       const params = applyRangeToParams($page.url.searchParams, range);
-      const next = new URL($page.url);
+      const next = new URL($page.url.href);
       next.search = params.toString();
       if (next.href !== $page.url.href) replaceState(next, $page.state);
     } catch {

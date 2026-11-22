@@ -1,4 +1,4 @@
-import { dev } from '$app/environment';
+import { dev } from '$app/env';
 import { createLogger } from '$lib/utils/logger';
 import { resolveAuthConfig, type AuthConfig } from './config';
 import { migrateDatabase } from '$lib/server/migrations';

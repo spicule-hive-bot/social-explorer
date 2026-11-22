@@ -8,7 +8,7 @@
   import { toCsv } from '$lib/utils/evidenceExport';
   import ExportStatus from '$lib/components/ui/ExportStatus.svelte';
   import FilterBar from '$lib/components/ui/FilterBar.svelte';
-  import { page } from '$app/stores';
+  import { page } from '$lib/stores/pageStore.svelte';
   import { currentProject } from '$lib/stores/projectStore';
   import { sentimentAnalysisDb } from '$lib/services/sentimentAnalysisDb';
   import PageHeader from '$lib/components/ui/PageHeader.svelte';

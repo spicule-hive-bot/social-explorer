@@ -1,7 +1,7 @@
 <script lang="ts">
   import 'leaflet/dist/leaflet.css';
   import { onDestroy, onMount } from 'svelte';
-  import { browser } from '$app/environment';
+  import { browser } from '$app/env';
   import CountryFilter from '$lib/components/gdelt/CountryFilter.svelte';
   import DateRangeFilter from '$lib/components/gdelt/DateRangeFilter.svelte';
   import EventTypeFilter from '$lib/components/gdelt/EventTypeFilter.svelte';

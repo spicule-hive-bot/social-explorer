@@ -4,7 +4,7 @@
   import PostDrilldown from '$lib/components/ui/PostDrilldown.svelte';
   import { filtersFromParams, type PostFilters } from '$lib/services/postsApi';
   import FilterBar from '$lib/components/ui/FilterBar.svelte';
-  import { page } from '$app/stores';
+  import { page } from '$lib/stores/pageStore.svelte';
   import { currentProject } from '$lib/stores/projectStore';
   import { topicModelingDb } from '$lib/services/topicModelingDb';
   import PageHeader from '$lib/components/ui/PageHeader.svelte';
@@ -13,7 +13,7 @@
   import { runExport, downloadCsv, IDLE_EXPORT, type ExportState } from '$lib/utils/exportAction';
   import { toCsv } from '$lib/utils/evidenceExport';
   import ExportStatus from '$lib/components/ui/ExportStatus.svelte';
-  import { browser } from '$app/environment';
+  import { browser } from '$app/env';
   import { getCategoryColor } from '$lib/utils/colorUtils';
   import { waitForEcharts, initChart } from '$lib/utils/echarts';
   import { ErrorAlert } from '$lib/components/ui';

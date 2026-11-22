@@ -8,7 +8,7 @@ const mocks = vi.hoisted(() => ({
   info: vi.fn()
 }));
 
-vi.mock('$app/environment', () => ({ dev: false }));
+vi.mock('$app/env', () => ({ dev: false }));
 vi.mock('$lib/server/migrations', () => ({ migrateDatabase: mocks.migrateDatabase }));
 vi.mock('./userRepo', () => ({
   ensureAuthSchema: mocks.ensureAuthSchema,

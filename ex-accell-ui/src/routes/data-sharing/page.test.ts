@@ -2,10 +2,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { fireEvent, render, screen, within } from '@testing-library/svelte';
 
 const session = vi.hoisted(() => ({ user: { id: '1', email: 'root@example.com', name: 'Root', role: 'admin' } }));
-vi.mock('$app/stores', async () => {
-  const { writable } = await import('svelte/store');
-  return { page: writable({ data: session }) };
-});
+vi.mock('$app/state', () => ({ page: { data: session } }));
 vi.mock('$app/navigation', () => ({ goto: vi.fn() }));
 
 import Page from './+page.svelte';

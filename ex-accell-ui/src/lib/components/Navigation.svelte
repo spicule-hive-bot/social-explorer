@@ -7,9 +7,9 @@
   import WorkspaceSelector from '$lib/components/navigation/WorkspaceSelector.svelte';
   import { dataFlagsFromSummary, navigationItems, navigationUrl, type NavItem, type NavProject, type NavTarget, type NavUser, type NavWorkspace, type WorkspaceSummary } from '$lib/components/navigation/navItems';
   import { goto } from '$app/navigation';
-  import { page } from '$app/stores';
+  import { page } from '$lib/stores/pageStore.svelte';
   import { onMount } from 'svelte';
-  import { browser } from '$app/environment';
+  import { browser } from '$app/env';
   import { workspaceIdFromRoute } from '$lib/utils/workspaceRoute';
   import { currentProject, loadCurrentProject } from '$lib/stores/projectStore';
 

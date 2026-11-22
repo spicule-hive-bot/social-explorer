@@ -1,6 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { cleanup, fireEvent, render, screen, waitFor, within } from '@testing-library/svelte';
-import type { writable } from 'svelte/store';
 
 type PageState = {
   route: { id: string | null };
@@ -16,24 +15,14 @@ const hoisted = vi.hoisted(() => ({
 }));
 
 vi.mock('$app/navigation', () => ({ goto: hoisted.goto }));
-vi.mock('$app/environment', () => ({ browser: true }));
-vi.mock('$app/stores', async () => {
-  const { writable } = await import('svelte/store');
-  const page = writable({
-    route: { id: '/' },
-    params: {},
-    url: new URL('http://localhost/'),
-    data: { user: null }
-  });
-  return { page };
-});
+vi.mock('$app/env', () => ({ browser: true }));
+vi.mock('$app/state', () => import('../../test/mocks/pageState.svelte'));
 vi.mock('$lib/utils/signOut', () => ({ signOut: hoisted.signOut, signOutEverywhere: hoisted.signOutEverywhere }));
 
-import { page } from '$app/stores';
+import { resetMockPage, setMockPage } from '../../test/mocks/pageState.svelte';
 import { currentProject } from '$lib/stores/projectStore';
 import Navigation from './Navigation.svelte';
 
-const pageStore = page as unknown as ReturnType<typeof writable<PageState>>;
 
 const projects = [
   { id: 1, name: 'Alpha', description: 'First project' },
@@ -74,7 +63,7 @@ function stubFetch({ withProjects = true }: { withProjects?: boolean } = {}) {
 }
 
 function setPage(pathname: string, user: PageState['data']['user'] = null) {
-  pageStore.set({
+  setMockPage({
     route: { id: pathname },
     params: {},
     url: new URL(`http://localhost${pathname}`),
@@ -94,6 +83,7 @@ async function openMobileMenu() {
 
 beforeEach(() => {
   cleanup();
+  resetMockPage();
   vi.unstubAllGlobals();
   localStorage.clear();
   currentProject.set(null);
@@ -389,7 +379,7 @@ describe('Navigation project and workspace selectors', () => {
   });
 
   it('names the workspace of the page you are on', async () => {
-    pageStore.set({
+    setMockPage({
       route: { id: '/workspaces/[id]' },
       params: { id: '11' },
       url: new URL('http://localhost/workspaces/11'),
@@ -399,5 +389,25 @@ describe('Navigation project and workspace selectors', () => {
 
     expect(await screen.findByRole('button', { name: /Quiet/ })).toBeInTheDocument();
     expect(localStorage.getItem('currentWorkspace')).toBe('11');
+  });
+
+  it('follows the visitor to another workspace without being remounted', async () => {
+    setMockPage({ route: { id: '/workspaces/[id]' }, params: { id: '10' }, url: new URL('http://localhost/workspaces/10'), data: { user: null } });
+    render(Navigation);
+    expect(await screen.findByRole('button', { name: /Elections/ })).toBeInTheDocument();
+
+    setMockPage({ params: { id: '11' }, url: new URL('http://localhost/workspaces/11') });
+
+    expect(await screen.findByRole('button', { name: /Quiet/ })).toBeInTheDocument();
+  });
+
+  it('shows the signed-in user after the page data changes', async () => {
+    setPage('/', null);
+    render(Navigation);
+    expect(screen.queryByText('Ada Admin')).toBeNull();
+
+    setMockPage({ data: { user: admin } });
+
+    expect((await screen.findAllByText('Ada Admin')).length).toBeGreaterThan(0);
   });
 });

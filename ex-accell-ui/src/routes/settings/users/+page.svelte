@@ -1,6 +1,6 @@
 <script lang="ts">
   import { onMount } from 'svelte';
-  import { page } from '$app/stores';
+  import { page } from '$app/state';
   import PageHeader from '$lib/components/ui/PageHeader.svelte';
 
   interface UserRow {
@@ -30,7 +30,7 @@
   let resetFor = $state<string | null>(null);
   let resetPassword = $state('');
 
-  const currentUserId = $derived(($page.data.user as { id: string } | null | undefined)?.id ?? '');
+  const currentUserId = $derived((page.data.user as { id: string } | null | undefined)?.id ?? '');
 
   async function call(url: string, method: string, body?: unknown): Promise<{ ok: boolean; error: string }> {
     try {

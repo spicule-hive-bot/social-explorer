@@ -5,7 +5,7 @@
   import { formatDay } from '$lib/utils/dayFormat';
   import { commitKeywords } from '$lib/utils/keywords';
   import { goto } from '$app/navigation';
-  import { page } from '$app/stores';
+  import { page } from '$lib/stores/pageStore.svelte';
   import { currentProject } from '$lib/stores/projectStore';
 
   interface Investigation {
