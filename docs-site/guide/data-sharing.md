@@ -122,7 +122,8 @@ Non-admins see the page with those controls hidden; the API answers `403` if the
 | `MAX_EXPORT_ROWS` | `500000` | Most rows exported in one publish and loaded in one import. |
 
 With Docker Compose the storage paths are fixed inside the container and mounted from `${DATA_DIR:-/data}/ipfs`
-and `${DATA_DIR:-/data}/packages`. The compose file forwards `IPFS_ENABLED`, `IPFS_GATEWAY_URL`,
+and `${DATA_DIR:-/data}/packages`, which the UI container (uid and gid 1000) writes to; compose's one-shot
+`ui-init` service keeps both folders writable by that user. The compose file forwards `IPFS_ENABLED`, `IPFS_GATEWAY_URL`,
 `IPFS_FETCH_TIMEOUT_MS`, `IPFS_MAX_FETCH_BYTES`, `MAX_EXPORT_ROWS` and the five network variables above from `.env`;
 put `IPFS_ENABLED=true` there.
 
