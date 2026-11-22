@@ -1,7 +1,7 @@
 <script lang="ts">
   import { onDestroy } from 'svelte';
-  import { matchesEventFilters, type GdeltEvent, type GdeltEventFilters } from '$lib/utils/gdeltFilters';
-  import { buildEventPopupHtml, hasCoordinates, markerOptions, POPUP_ACTIONS } from '$lib/utils/gdeltMarkers';
+  import { matchesEventFilters, type GdeltEvent, type GdeltEventFilters } from '#lib/utils/gdeltFilters.ts';
+  import { buildEventPopupHtml, hasCoordinates, markerOptions, POPUP_ACTIONS } from '#lib/utils/gdeltMarkers.ts';
 
   /** How many events pass the filters, and how many were loaded */
   export let visibleCount: number;
