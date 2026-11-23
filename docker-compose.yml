@@ -91,6 +91,20 @@ services:
         condition: service_healthy
       redis:
         condition: service_healthy
+      ui-init:
+        condition: service_completed_successfully
+
+  # Docker creates a missing ${DATA_DIR}/ipfs and ${DATA_DIR}/packages as root, but the UI image runs
+  # as uid 1000. This one-shot step hands those folders to that user, then exits, including when
+  # upgrading from the earlier root image. (Same pattern as jupyter-init below.)
+  ui-init:
+    image: ${REGISTRY:-local}/ex-accell-ui:${TAG:-latest}
+    user: "0:0"
+    entrypoint: ["chown", "-R", "1000:1000", "/data/ipfs", "/data/packages"]
+    restart: "no"
+    volumes:
+      - ${DATA_DIR:-/data}/ipfs:/data/ipfs
+      - ${DATA_DIR:-/data}/packages:/data/packages
 
   # Dapr sidecar for UI — shares network namespace with ui container
   ui-dapr:

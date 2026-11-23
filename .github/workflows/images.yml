@@ -60,5 +60,18 @@ jobs:
           context: ./ex-accell-ui
           file: ./ex-accell-ui/Dockerfile
           push: false
+          load: true
+          tags: ex-accell-ui-ci:${{ github.sha }}
           cache-from: type=gha,scope=ui
           cache-to: type=gha,scope=ui,mode=max
+
+      # The runtime stage of ex-accell-ui/Dockerfile must never fall back to root (issue #326): the
+      # app serves user data, and a root runtime sidesteps the volume permissions ui-init sets up.
+      - name: UI image must not run as root
+        run: |
+          uid="$(docker run --rm ex-accell-ui-ci:${{ github.sha }} id -u)"
+          echo "UI image runtime uid: $uid"
+          if [ "$uid" = "0" ]; then
+            echo "::error::The ex-accell-ui image runs as root (uid 0); its runtime stage must set USER to a non-root user"
+            exit 1
+          fi

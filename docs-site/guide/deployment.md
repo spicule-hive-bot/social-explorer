@@ -67,6 +67,11 @@ The Jupyter container runs as an unprivileged user (uid and gid 1000), not as ro
 the earlier root image. If you run the image without compose, `chown -R 1000:1000` the notebooks folder yourself; otherwise the
 container stops and says so.
 
+The UI container runs the same way: unprivileged uid and gid 1000, not root. Compose runs a one-shot
+`ui-init` service first that gives `$DATA_DIR/ipfs` and `$DATA_DIR/packages` to that user, so you need do nothing,
+including when upgrading from the earlier root image. If you run the image without compose, `chown -R 1000:1000`
+both folders yourself; otherwise the app cannot write its IPFS node state or data packages.
+
 Do not publish the Postgres, Redis, Ollama or Jupyter ports to the internet. The compose file maps
 them to the host for convenience; bind them to `127.0.0.1` or remove the mappings on a server.
 

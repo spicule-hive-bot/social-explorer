@@ -1,0 +1,29 @@
+{
+  "issue": 326,
+  "title": "Run the production image as a non-root user",
+  "kind": "command",
+  "criteria": [
+    {
+      "id": "C1",
+      "given": "the ex-accell-ui image is built",
+      "then": "its runtime (final) stage declares a non-root USER, so `docker run --rm <image> id` is not uid 0"
+    },
+    {
+      "id": "C2",
+      "given": "the Images workflow builds the UI image",
+      "then": "it runs that image and fails when the runtime user is root (uid 0)"
+    },
+    {
+      "id": "C3",
+      "given": "the app runs as uid 1000 with the compose volumes mounted",
+      "then": "compose's one-shot ui-init service hands ${DATA_DIR}/ipfs and ${DATA_DIR}/packages to uid 1000 before ui starts, and the deployment docs say so"
+    },
+    {
+      "id": "C4",
+      "given": "the change is confined to the production runtime image, compose and docs",
+      "then": "the demo start and resume path is untouched: demo.sh still serves the app with `vite dev` (not the production image), so the Demo start and resume check keeps passing (it runs in CI)"
+    }
+  ],
+  "command": ["node", "acceptance/326/check.mjs"],
+  "timeoutSeconds": 120
+}
