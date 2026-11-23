@@ -33,6 +33,7 @@ afterEach(() => {
   cleanup();
   resetMockPage();
   vi.unstubAllGlobals();
+  vi.useRealTimers();
 });
 
 describe('topic modeling page', () => {
@@ -67,10 +68,54 @@ describe('topic modeling page', () => {
     expect(vi.mocked(db.getTopics).mock.calls[1][0]).toMatchObject({ search: 'peace' });
   });
 
-  it('does not reload the topics when only the date range changes, as the page has always behaved', async () => {
+  // Regression for #346: the fetch's own reassignment of topicsData re-ran the debounced effect,
+  // so a single search or category change refetched forever. Each new filter key must load once,
+  // and once the response arrives nothing further may be requested.
+  it('makes exactly one filtered request per search change, and none after the response arrives', async () => {
+    at('?workspace=4');
+    // Every call resolves with a fresh array so the reassignment is really a state change
+    vi.mocked(db.getTopics).mockImplementation(async () => topics.map((t) => ({ ...t })));
+    vi.useFakeTimers();
+    render(Page);
+    await vi.advanceTimersByTimeAsync(0); // the mount load resolves through microtasks
+    expect(vi.mocked(db.getTopics).mock.calls).toHaveLength(1);
+
+    await fireEvent.input(screen.getByPlaceholderText('Search topics or keywords...'), { target: { value: 'peace' } });
+    expect(vi.mocked(db.getTopics).mock.calls).toHaveLength(1); // the debounce is pending
+
+    await vi.advanceTimersByTimeAsync(300); // the debounce elapses, one filtered request fires
+    expect(vi.mocked(db.getTopics).mock.calls).toHaveLength(2);
+    expect(vi.mocked(db.getTopics).mock.calls[1][0]).toMatchObject({ search: 'peace' });
+
+    await vi.advanceTimersByTimeAsync(60_000); // well past the debounce, response long since arrived
+    expect(vi.mocked(db.getTopics).mock.calls).toHaveLength(2); // the loop is not restarting the fetch
+  });
+
+  it('makes exactly one filtered request per category change, and none after the response arrives', async () => {
+    at('');
+    vi.mocked(db.getTopics).mockImplementation(async () => topics.map((t) => ({ ...t })));
+    vi.useFakeTimers();
+    render(Page);
+    await vi.advanceTimersByTimeAsync(0);
+
+    await fireEvent.change(screen.getByRole('combobox'), { target: { value: 'politics' } });
+
+    await vi.advanceTimersByTimeAsync(300);
+    expect(vi.mocked(db.getTopics).mock.calls).toHaveLength(2);
+    expect(vi.mocked(db.getTopics).mock.calls[1][0]).toMatchObject({ category: 'politics' });
+
+    await vi.advanceTimersByTimeAsync(60_000);
+    expect(vi.mocked(db.getTopics).mock.calls).toHaveLength(2);
+  });
+
+  // The topic list is precomputed on the server (topics has no per-post date), so a date change
+  // cannot reload it; the range only scopes the posts the drilldown opens. The page says so.
+  it('does not reload the topics when only the date range changes, and the page says the range scopes the drilldown', async () => {
     at('?workspace=4');
     render(Page);
     await screen.findByText('(3 of 3 topics)');
+
+    expect(await screen.findByText(/date range scopes/)).toBeInTheDocument();
 
     at('?workspace=5');
     await typeFilterDate('Start date', '2026-02-01');
