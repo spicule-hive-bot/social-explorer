@@ -76,6 +76,17 @@ describe('buildEventPopupHtml', () => {
     // The numeric id stays numeric in both the heading and the attribute
     expect(html).toContain('data-event-id="12"');
   });
+
+  it('escapes the id and the date too, in case they arrive as strings (Postgres int8 columns do)', () => {
+    const payload = '1" data-action="filter-country" data-country="evil"><img src=https://evil.example/x>';
+    const html = buildEventPopupHtml({ ...event, id: payload as unknown as number, date: payload as unknown as number });
+
+    const popup = document.createElement('div');
+    popup.innerHTML = html;
+    expect(popup.querySelector('img, script, iframe, svg')).toBeNull();
+    expect(popup.querySelectorAll('[data-action]')).toHaveLength(2);
+    expect(popup.querySelector('[data-event-id]')?.getAttribute('data-event-id')).toBe(payload);
+  });
 });
 
 describe('Global South countries', () => {

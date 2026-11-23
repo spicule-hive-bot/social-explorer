@@ -68,12 +68,12 @@ export function buildEventPopupHtml(event: GdeltEvent): string {
       <p class="text-xs mb-1"><strong>Event Code:</strong> ${escapeHtml(event.eventCode)}</p>
       <p class="text-xs mb-1"><strong>Goldstein Scale:</strong> ${event.goldstein?.toFixed(2) || 'N/A'}</p>
       <p class="text-xs mb-1"><strong>Tone:</strong> ${event.tone?.toFixed(2) || 'N/A'}</p>
-      <p class="text-xs mb-2"><strong>Date:</strong> ${gdeltDateToInputDate(event.date ?? 0)}</p>
+      <p class="text-xs mb-2"><strong>Date:</strong> ${escapeHtml(String(gdeltDateToInputDate(event.date ?? 0)))}</p>
       <div class="flex gap-2">
         <button type="button" data-action="${POPUP_ACTIONS.filterCountry}" data-country="${escapeHtml(event.country)}" class="text-xs bg-blue-600 hover:bg-blue-700 text-white px-3 py-1.5 rounded-xl transition-colors">
           Filter by ${escapeHtml(countryName)}
         </button>
-        <button type="button" data-action="${POPUP_ACTIONS.showMentions}" data-event-id="${event.id}" class="text-xs bg-blue-600 hover:bg-blue-700 text-white px-3 py-1.5 rounded-xl transition-colors">
+        <button type="button" data-action="${POPUP_ACTIONS.showMentions}" data-event-id="${escapeHtml(String(event.id))}" class="text-xs bg-blue-600 hover:bg-blue-700 text-white px-3 py-1.5 rounded-xl transition-colors">
           Show Related Mentions
         </button>
       </div>
