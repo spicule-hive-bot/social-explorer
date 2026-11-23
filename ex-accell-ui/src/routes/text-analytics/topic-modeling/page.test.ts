@@ -33,6 +33,7 @@ afterEach(() => {
   cleanup();
   resetMockPage();
   vi.unstubAllGlobals();
+  vi.useRealTimers();
 });
 
 describe('topic modeling page', () => {
