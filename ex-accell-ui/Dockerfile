@@ -15,13 +15,16 @@ FROM node:26-slim
 
 # The runtime stage never runs as root: the node user (uid/gid 1000) from the base image serves the
 # app. It needs to write /app/.jupyter (the Jupyter launch state, src/lib/server/jupyterRuntime.ts)
-# and, at run time, /tmp (world-writable) and the bind-mounted /data/ipfs and /data/packages volumes,
-# which compose's ui-init one-shot step hands to this user (docs-site/guide/deployment.md).
+# and, at run time, /tmp (world-writable) and the /data/ipfs and /data/packages volumes. The image
+# creates both owned by node, so a bare `docker run` or a fresh named volume works; for bind mounts
+# compose's ui-init one-shot step hands them to this user (docs-site/guide/deployment.md).
 WORKDIR /app
 COPY --from=builder --chown=node:node /app/build ./build
 COPY --from=builder --chown=node:node /app/node_modules ./node_modules
 COPY --from=builder --chown=node:node /app/package.json ./
-RUN chown node:node /app
+RUN chown node:node /app \
+ && mkdir -p /data/ipfs /data/packages \
+ && chown -R node:node /data
 
 EXPOSE 3000
 ENV PORT=3000

@@ -79,6 +79,15 @@ check(
   'docs-site/guide/deployment.md does not document the UI non-root user and ui-init',
 );
 
+// C5: /data exists in the image and belongs to the runtime user, so the IPFS node and the data
+// packages work without compose's bind mounts (a bare `docker run`, or a fresh named volume).
+const joinedStage = runtimeStage.replace(/\\\n\s*/g, ' ');
+const dataSetup = joinedStage.search(/^RUN [^\n]*mkdir -p [^\n]*\/data\/ipfs [^\n]*\/data\/packages[^\n]*chown -R node:node \/data/m);
+check(
+  dataSetup > -1 && dataSetup < joinedStage.search(/^USER/m),
+  'runtime stage does not create /data/ipfs and /data/packages owned by node before USER node',
+);
+
 // C4: the demo start and resume path is untouched — demo.sh serves the app with `vite dev`, not
 // the production image, so this change cannot break the Demo start and resume check.
 const demoSh = readFileSync(join(root, 'ex-accell-ui/scripts/demo.sh'), 'utf8');
