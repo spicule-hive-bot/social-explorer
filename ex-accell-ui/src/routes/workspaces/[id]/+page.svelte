@@ -6,7 +6,6 @@
 <script lang="ts">
   import { platformBadgeClass, platformDotClass, workspaceTypeBadgeClass } from '#lib/utils/categoryColours.ts';
   import { sourceStatusBadgeClass } from '#lib/utils/sourceStatus.ts';
-  import { onMount } from 'svelte';
   import { goto } from '$app/navigation';
   import { page } from '$app/state';
 
@@ -86,10 +85,19 @@
   const typeBadgeColor = (t: string): string => workspaceTypeBadgeClass(t);
 
   // ---------- data loading ----------
-  async function loadData() {
+  // A client-side navigation to another workspace reuses this component, so the load must follow the
+  // route param; a token discards responses that arrive after the route changed again.
+  let loadToken = 0;
+
+  async function loadData(id: string | undefined) {
+    if (!id) return;
+    const token = ++loadToken;
+    loading = true;
+    error = '';
     try {
-      const res = await fetch(`/api/workspace-overview?id=${workspaceId}`);
+      const res = await fetch(`/api/workspace-overview?id=${id}`);
       const data = await res.json();
+      if (token !== loadToken) return; // stale: the route moved to another workspace mid-request
       if (data.success) {
         workspace = data.workspace;
         dataSources = data.data_sources;
@@ -100,14 +108,14 @@
         error = data.error || 'Failed to load workspace';
       }
     } catch (e) {
-      error = e instanceof Error ? e.message : 'Network error';
+      if (token === loadToken) error = e instanceof Error ? e.message : 'Network error';
     } finally {
-      loading = false;
+      if (token === loadToken) loading = false;
     }
   }
 
-  onMount(() => {
-    loadData();
+  $effect(() => {
+    loadData(workspaceId);
   });
 </script>
 
@@ -144,7 +152,7 @@
     <div class="text-center">
       <p class="text-red-600 font-medium mb-2">Error loading workspace</p>
       <p class="text-sm text-slate-500 mb-4">{error}</p>
-      <button class="px-4 py-2 bg-slate-900 text-white rounded-lg text-sm hover:bg-slate-800 transition-colors" onclick={() => { loading = true; loadData(); }}>
+      <button class="px-4 py-2 bg-slate-900 text-white rounded-lg text-sm hover:bg-slate-800 transition-colors" onclick={() => loadData(workspaceId)}>
         Retry
       </button>
     </div>
