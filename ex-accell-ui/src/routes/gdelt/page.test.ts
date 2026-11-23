@@ -116,7 +116,19 @@ function routes(over: { gdelt?: Route; mentions?: Route } = {}) {
   });
 }
 
-const w = window as unknown as Record<string, (...args: unknown[]) => void>;
+/** Clicks a popup action button appended to the map container, the way a marker popup does. */
+async function clickPopupButton(attrs: Record<string, string>) {
+  const container = document.querySelector('[data-testid="gdelt-map-container"]');
+  if (!container) throw new Error('map container is not in the DOM');
+  const button = document.createElement('button');
+  for (const [name, value] of Object.entries(attrs)) button.setAttribute(name, value);
+  container.appendChild(button);
+  try {
+    await fireEvent.click(button);
+  } finally {
+    button.remove();
+  }
+}
 const stat = (label: string) =>
   Array.from(document.querySelectorAll('div.text-xs.text-gray-600')).find((el) => el.textContent === label)?.previousElementSibling?.textContent?.trim();
 const loaded = () => screen.findByText('Global Events Map');
@@ -335,7 +347,7 @@ describe('GDELT page map', () => {
     expect(first.options.fillOpacity).toBe(0.8);
     expect(first.options.fillColor).toBeTruthy();
     expect(first.popup).toContain('Event 1');
-    expect(first.popup).toContain('Support &amp; Agreements'.replace('&amp;', '&'));
+    expect(first.popup).toContain('Support &amp; Agreements');
     expect(first.popup).toContain('Show Related Mentions');
   });
 
@@ -367,7 +379,7 @@ describe('GDELT page map', () => {
     render(Page);
     await loaded();
     await mapReady();
-    w.filterByCountry('US');
+    await clickPopupButton({ 'data-action': 'filter-country', 'data-country': 'US' });
     await waitFor(() => expect(stat('Visible Events')).toBe('1'));
   });
 
@@ -409,7 +421,7 @@ describe('GDELT page mentions', () => {
     render(Page);
     await loaded();
     await mapReady();
-    w.showEventMentions(1);
+    await clickPopupButton({ 'data-action': 'show-mentions', 'data-event-id': '1' });
     expect(await screen.findByText('Related Mentions')).toBeTruthy();
     expect(await screen.findByText('source-1.com')).toBeTruthy();
     expect(screen.getByText('Event ID: 1')).toBeTruthy();
@@ -424,23 +436,23 @@ describe('GDELT page mentions', () => {
     render(Page);
     await loaded();
     await mapReady();
-    w.showEventMentions(1);
+    await clickPopupButton({ 'data-action': 'show-mentions', 'data-event-id': '1' });
     expect(await screen.findByText('No mentions found')).toBeTruthy();
 
     routes({ mentions: () => ({ error: 'Note: mentions are limited' }) });
-    w.showEventMentions(2);
+    await clickPopupButton({ 'data-action': 'show-mentions', 'data-event-id': '2' });
     expect(await screen.findByText('Data Limitation')).toBeTruthy();
     expect(screen.getByText('Note: mentions are limited')).toBeTruthy();
 
     routes({ mentions: () => ({ error: 'bad query' }) });
-    w.showEventMentions(3);
+    await clickPopupButton({ 'data-action': 'show-mentions', 'data-event-id': '3' });
     expect(await screen.findByText('Error Loading Mentions')).toBeTruthy();
     expect(screen.getByText('bad query')).toBeTruthy();
 
     await fireEvent.click(screen.getByText('Close'));
     expect(screen.queryByText('Related Mentions')).toBeNull();
     // A failed single-event load does not reopen a closed section
-    w.showEventMentions(3);
+    await clickPopupButton({ 'data-action': 'show-mentions', 'data-event-id': '3' });
     await waitFor(() => expect(fetchMock.mock.calls.filter(([u]) => String(u).includes('eventId=3'))).toHaveLength(2));
     expect(screen.queryByText('Related Mentions')).toBeNull();
   });
@@ -450,7 +462,7 @@ describe('GDELT page mentions', () => {
     render(Page);
     await loaded();
     await mapReady();
-    w.showEventMentions(1);
+    await clickPopupButton({ 'data-action': 'show-mentions', 'data-event-id': '1' });
     await screen.findByText('source-1.com');
 
     const order = () => Array.from(document.querySelectorAll('tbody tr td:first-child')).map((td) => td.textContent?.trim());
@@ -475,7 +487,7 @@ describe('GDELT page mentions', () => {
     render(Page);
     await loaded();
     await mapReady();
-    w.showEventMentions(1);
+    await clickPopupButton({ 'data-action': 'show-mentions', 'data-event-id': '1' });
     await screen.findByText('source-30.com');
     expect(screen.getAllByText('Show:')).toHaveLength(2);
     expect(screen.getByText(/Showing 1-30 of 30 filtered mentions/)).toBeTruthy();
@@ -496,7 +508,7 @@ describe('GDELT page mentions', () => {
     render(Page);
     await loaded();
     await mapReady();
-    w.showEventMentions(1);
+    await clickPopupButton({ 'data-action': 'show-mentions', 'data-event-id': '1' });
     await screen.findByText('source-1.com');
     await fireEvent.click(screen.getByText('Export CSV'));
     expect(createObjectURL).toHaveBeenCalledTimes(1);
