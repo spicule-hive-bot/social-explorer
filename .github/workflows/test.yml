@@ -163,6 +163,27 @@ jobs:
       - name: Test
         run: node --test "scripts/tests/*.test.mjs"
 
+  # ETL URL safety tests (etl/test_safe_http.py). These guard the network boundary
+  # in etl/safe_http.py (private addresses, redirects, response limits, DNS) and were
+  # previously run only nightly or as an advisory check, so the required `ci` job
+  # could pass while they failed. Part of the `ci` rollup: a failure or skip here
+  # fails the gate.
+  etl-tests:
+    name: ETL URL safety (pytest)
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: Install ETL test dependencies
+        run: python3 -m venv .venv && .venv/bin/pip install --quiet pytest requests
+
+      - name: Run ETL URL safety tests
+        working-directory: etl
+        run: ../.venv/bin/python -m pytest -q test_safe_http.py
+
   # Single stable check name for the merge convention, the review rubric and the hive's auto-red
   # watcher. The `protect main` ruleset is meant to require this check by name. It rolls up the jobs
   # of THIS workflow only; Jupyter, Docs, Demo script, Secret scan and Dependency audit are separate,
@@ -173,7 +194,7 @@ jobs:
   # failed) is a failure, not a pass.
   ci:
     name: ci
-    needs: [build, unit-tests, playwright-e2e, scripts]
+    needs: [build, unit-tests, playwright-e2e, scripts, etl-tests]
     if: always()
     runs-on: ubuntu-24.04
     timeout-minutes: 5
@@ -187,9 +208,10 @@ jobs:
           UNIT_TESTS_RESULT: ${{ needs.unit-tests.result }}
           E2E_RESULT: ${{ needs.playwright-e2e.result }}
           SCRIPTS_RESULT: ${{ needs.scripts.result }}
+          ETL_RESULT: ${{ needs.etl-tests.result }}
         run: |
           fail=0
-          for entry in "build=$BUILD_RESULT" "unit-tests=$UNIT_TESTS_RESULT" "playwright-e2e=$E2E_RESULT" "scripts=$SCRIPTS_RESULT"; do
+          for entry in "build=$BUILD_RESULT" "unit-tests=$UNIT_TESTS_RESULT" "playwright-e2e=$E2E_RESULT" "scripts=$SCRIPTS_RESULT" "etl-tests=$ETL_RESULT"; do
             if [ "${entry#*=}" = "success" ]; then
               echo "ok: $entry"
             else
