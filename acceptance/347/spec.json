@@ -1,0 +1,24 @@
+{
+  "issue": 347,
+  "title": "engagement analysis loads its filtered data twice after the first load",
+  "kind": "command",
+  "criteria": [
+    {
+      "id": "C1",
+      "given": "the page has completed its first load",
+      "then": "each filtered endpoint received exactly one data request and the loaded results are on display"
+    },
+    {
+      "id": "C2",
+      "given": "one analysis filter changes after the first load",
+      "then": "each filtered endpoint receives exactly one further data request"
+    },
+    {
+      "id": "C3",
+      "given": "an older response for an earlier filter lands after a newer one",
+      "then": "the newer results stay on display and the stale response is never applied"
+    }
+  ],
+  "command": ["node", "check.mjs"],
+  "timeoutSeconds": 900
+}
