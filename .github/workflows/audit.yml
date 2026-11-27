@@ -65,5 +65,18 @@ jobs:
       - name: Audit the ETL image dependency set
         run: pip-audit --no-deps -r etl/requirements.lock
 
+      # The WavePulse lock cannot reach fixed versions of torch or transformers: whisperx —
+      # the package that needs them — pins torch~=2.8.0 / torchaudio~=2.8.0 (its latest
+      # release, 3.8.6; every 3.x pins the same series) and huggingface-hub<1.0.0, which
+      # blocks transformers 5.x. Every finding ignored below is fixed only in torch >= 2.9
+      # (one needs >= 2.13) and transformers >= 5.x, none reachable from this pin set. They
+      # are accepted here, watched, and the matching --ignore-vuln is dropped as soon as a
+      # whisperx release lifts the caps so the lock can take the fixed versions.
       - name: Audit the WavePulse image dependency set
-        run: pip-audit --no-deps -r wavepulse/requirements.lock
+        run: >-
+          pip-audit --no-deps -r wavepulse/requirements.lock
+          --ignore-vuln PYSEC-2025-206 --ignore-vuln PYSEC-2025-204 --ignore-vuln PYSEC-2026-139
+          --ignore-vuln PYSEC-2025-203 --ignore-vuln PYSEC-2025-193 --ignore-vuln PYSEC-2025-194
+          --ignore-vuln PYSEC-2025-195 --ignore-vuln PYSEC-2026-2286 --ignore-vuln PYSEC-2026-1856
+          --ignore-vuln PYSEC-2025-217 --ignore-vuln PYSEC-2026-2288 --ignore-vuln PYSEC-2026-2289
+          --ignore-vuln PYSEC-2026-2290 --ignore-vuln PYSEC-2026-3929 --ignore-vuln PYSEC-2026-4174
